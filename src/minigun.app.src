@@ -1,0 +1,12 @@
+{application, minigun,
+ [
+  {description, "Revolver with dynamic pooling"},
+  {vsn, "1.8.1"},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  stdlib,
+                  revolver
+                 ]},
+  {env, []}
+ ]}.

@@ -1,0 +1,2 @@
+-define(SUPERVISOR(Name), list_to_atom(atom_to_list(Name) ++ "_sup")).
+-define(WORKER(Name, X), list_to_atom(atom_to_list(Name) ++ integer_to_list(X))).
