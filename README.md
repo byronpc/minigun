@@ -50,7 +50,7 @@ To include minigun in your supervisor:
 ```erlang
 SupervisorOpts = #{
   id =>     minigun_sup
-    start =>    {minigun_sup, start_link, MinigunOpts},
+    start =>    {minigun_sup, start_link, [MinigunOpts]},
     restart =>  permanent,
     shutdown => infinity,
     type =>     supervisor,
@@ -73,5 +73,5 @@ opts = %{
     }
 }
 
-supervisor(:minigun_sup, opts)
+supervisor(:minigun_sup, [opts])
 ```
