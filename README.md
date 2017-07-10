@@ -17,22 +17,22 @@ RevolverOpts = #{
 ### worker child spec
 ```erlang
 ChildSpec = #{
-    start =>    {minigun_pong, start_link, []},
-    restart =>  permanent,
-    shutdown => 5000,
-    type =>     worker,
-    modules =>  [minigun_pong]
+  start =>    {minigun_pong, start_link, []},
+  restart =>  permanent,
+  shutdown => 5000,
+  type =>     worker,
+  modules =>  [minigun_pong]
 }
 ```
 
 ### Minigun Opts
 ```erlang
 MinigunOpts = #{
-    name          => pong,        % poolname
-    pool_size     => 2,         % initial size of the pool
-    pool_limit    => 4,         % maximum size of the pool
-    child_spec    => ChildSpec,   % worker child spec
-    revolver_opts   => RevolverOpts % revolver options
+  name          => pong,        % poolname
+  pool_size     => 2,           % initial size of the pool
+  pool_limit    => 4,           % maximum size of the pool
+  child_spec    => ChildSpec,   % worker child spec
+  revolver_opts => RevolverOpts % revolver options
 }
 ```
 
@@ -49,12 +49,12 @@ To manually start the supervisor:
 To include minigun in your supervisor:
 ```erlang
 SupervisorOpts = #{
-  id =>     minigun_sup
-    start =>    {minigun_sup, start_link, [MinigunOpts]},
-    restart =>  permanent,
-    shutdown => infinity,
-    type =>     supervisor,
-    modules =>  [minigun_sup]
+  id        => minigun_sup
+  start     => {minigun_sup, start_link, MinigunOpts},
+  restart   => permanent,
+  shutdown  => infinity,
+  type      => supervisor,
+  modules   => [minigun_sup]
 }
 ```
 
@@ -62,16 +62,23 @@ Elixir:
 ```elixir
 opts = %{
   name: pong,
-    pool_size:  2,
-    pool_limit: 4,
-    child_spec: worker(:minigun_pong, []),
-    revolver_opts: %{
-      min_alive_ratio: 1.00,
-      reconnect_delay: 1000,
-      max_message_queue_length: 2,
-      connect_at_start: true
-    }
+  pool_size:  2,
+  pool_limit: 4,
+  child_spec: worker(:minigun_pong, []),
+  revolver_opts: %{
+    min_alive_ratio: 1.00,
+    reconnect_delay: 1000,
+    max_message_queue_length: 2,
+    connect_at_start: true
+  }
 }
 
-supervisor(:minigun_sup, [opts])
+supervisor(:minigun_sup, opts)
+```
+
+To retrieve a minigun_pool pid
+
+```erlang
+1> minigun:pid(pong).
+<0.40.0>
 ```
