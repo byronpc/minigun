@@ -2,6 +2,8 @@
 
 minigun is a round-robin load balancer built on top of [revolver](https://github.com/odo/revolver) with additional features such as built-in pool and dynamic pooling
 
+like revolver, this is perfect for fast parallelization of equally sized tasks.
+
 ## configuration
 
 ### revolver options (See [revolver](https://github.com/odo/revolver) for more information)
