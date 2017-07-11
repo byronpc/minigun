@@ -27,7 +27,7 @@ add_worker(Name) ->
   WorkerCount = worker_count(Name),
   case application:get_env(Name, pool_limit) of
     {ok, PoolOverflow} when PoolOverflow > WorkerCount ->
-      {ok, Template} = supervisor:get_childspec(?SUPERVISOR(Name), ?WORKER(Name, 1)),
+      {ok, Template} = application:get_env(Name, child_spec),
       ChildSpec = maps:put(id, ?WORKER(Name, worker_count(Name) + 1), Template),
       {ok, Pid} = supervisor:start_child(?SUPERVISOR(Name), ChildSpec),
       revolver:connect(Name),
