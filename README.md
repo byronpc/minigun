@@ -19,18 +19,18 @@ RevolverOpts = #{
 ### worker child spec
 ```erlang
 ChildSpec = #{
-  start =>    {minigun_pong, start_link, []},
-  restart =>  permanent,
-  shutdown => 5000,
-  type =>     worker,
-  modules =>  [minigun_pong]
+  start     => {minigun_pong, start_link, []},
+  restart   => permanent,
+  shutdown  => 5000,
+  type      => worker,
+  modules   => [minigun_pong]
 }
 ```
 
 ### Minigun Opts
 ```erlang
 MinigunOpts = #{
-  name          => pong,        % poolname
+  pool_id       => pong,        % pool id
   pool_size     => 2,           % initial size of the pool
   pool_limit    => 4,           % maximum size of the pool
   child_spec    => ChildSpec,   % worker child spec
@@ -63,7 +63,7 @@ SupervisorOpts = #{
 Elixir:
 ```elixir
 opts = %{
-  name: pong,
+  pool_id:    pong,
   pool_size:  2,
   pool_limit: 4,
   child_spec: worker(:minigun_pong, []),

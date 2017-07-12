@@ -18,11 +18,11 @@
 start() ->
 
   ChildSpec = #{
-    start =>    {minigun_pong, start_link, []},
-    restart =>  permanent,
-    shutdown => 5000,
-    type =>     worker,
-    modules =>  [minigun_pong]
+    start     => {minigun_pong, start_link, []},
+    restart   => permanent,
+    shutdown  => 5000,
+    type      => worker,
+    modules   => [minigun_pong]
   },
 
   RevolverOpts = #{
@@ -33,10 +33,11 @@ start() ->
   },
 
   Opts = #{
-    name       => pong,
-    pool_size  => 2,
-    pool_limit => 4,
-    child_spec => ChildSpec,
+    pool_id       => pong,
+    pool_size     => 2,
+    pool_limit    => 4,
+    janitor_ttl   => 30000,
+    child_spec    => ChildSpec,
     revolver_opts => RevolverOpts
   },
 
