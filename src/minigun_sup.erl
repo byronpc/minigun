@@ -60,8 +60,8 @@ start_janitor(PoolId, Ttl) ->
 
 generate_childspecs(PoolId, PoolSize, ChildSpec) ->
   Template = get_childspec(ChildSpec),
-  lists:map(fun(X) ->
-    maps:put(id, ?WORKER(PoolId, X), Template)
+  lists:map(fun(_X) ->
+    maps:put(id, ?GENERATE_WORKER_ID(PoolId), Template)
   end, lists:seq(1, PoolSize)).
 
 get_childspec({Id, Mfa, Restart, Shutdown, Type, Modules}) ->

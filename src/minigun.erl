@@ -15,72 +15,72 @@
 %%====================================================================
 
 %% @doc Retrieves a pid from the pool
-pid(Pool) ->
-  case catch revolver:pid(Pool) of
+pid(PoolId) ->
+  case catch revolver:pid(PoolId) of
     Pid when is_pid(Pid) ->
       Pid;
     {error, overload} ->
-      add_worker(Pool);
+      add_worker(PoolId);
     _ ->
       {error, no_pool}
   end.
 
 %% @doc Retrieves the number of workers in the pool
-worker_count(Pool) ->
+worker_count(PoolId) ->
   [_,_,_,{workers,Workers}] =
-    supervisor:count_children(?SUPERVISOR(Pool)),
+    supervisor:count_children(?SUPERVISOR(PoolId)),
   Workers.
 
 %% @doc Dynamically adds a worker to the pool
-add_worker(Pool) ->
-  WorkerCount = worker_count(Pool),
-  case application:get_env(Pool, pool_limit) of
-    {ok, PoolOverflow} when PoolOverflow > WorkerCount ->
-      {ok, Pid} = supervisor:start_child(?SUPERVISOR(Pool), get_transient_childspec(Pool)),
-      revolver:connect(Pool),
+add_worker(PoolId) ->
+  WorkerCount = worker_count(PoolId),
+  case application:get_env(PoolId, pool_limit) of
+    {ok, PoolLimit} when PoolLimit > WorkerCount ->
+      {ok, Pid} = supervisor:start_child(?SUPERVISOR(PoolId), get_transient_childspec(PoolId)),
+      revolver:connect(PoolId),
       Pid;
     _ ->
       {error, overload}
   end.
 
 %% @doc Cleans up idle workers from the pool
-cleanup_workers(Pool) ->
-  Workers = supervisor:which_children(?SUPERVISOR(Pool)),
-  cleanup_workers(Pool, Workers).
+cleanup_workers(PoolId) ->
+  Workers = supervisor:which_children(?SUPERVISOR(PoolId)),
+  cleanup_workers(PoolId, Workers).
 
-cleanup_workers(_Pool, []) ->
+cleanup_workers(_PoolId, []) ->
   ok;
 
-cleanup_workers(Pool, [{PidName, Pid, _, _}|Rest]) ->
-  case supervisor:get_childspec(?SUPERVISOR(Pool), PidName) of
+cleanup_workers(PoolId, [{PidName, Pid, _, _}|Rest]) ->
+  case supervisor:get_childspec(?SUPERVISOR(PoolId), PidName) of
     % If permanent worker, skip cleanup
     {ok, #{restart := permanent}} ->
       skip;
     _ ->
       case revolver_utils:message_queue_len(Pid) of
         0 ->
-          decommision_worker(Pool, PidName, Pid);
+          decommision_worker(PoolId, PidName, Pid);
         _ ->
           skip
       end
   end,
-  cleanup_workers(Pool, Rest).
+  cleanup_workers(PoolId, Rest).
 
 %%====================================================================
 %% Private functions
 %%====================================================================
 
 %% Remove worker from the pool
-decommision_worker(Pool, PidName, Pid) ->
+decommision_worker(PoolId, PidName, Pid) ->
   % MAKE SURE NOT ACCEPTING NEW MESSAGES REMOVE FROM REVOLVER
   ok = gen_server:stop(Pid),
-  ok = supervisor:delete_child(?SUPERVISOR(Pool), PidName).
+  ok = supervisor:delete_child(?SUPERVISOR(PoolId), PidName).
 
-%% Dynamically added workers to the pool will have trancient childspec
-get_transient_childspec(Pool) ->
-  {ok, Template} = application:get_env(Pool, child_spec),
+%% Dynamically added workers to the pool will have transient childspec
+get_transient_childspec(PoolId) ->
+  {ok, Template} = application:get_env(PoolId, child_spec),
   maps:merge(Template, #{
-    id => ?WORKER(Pool, worker_count(Pool) + 1),
+    id => ?GENERATE_WORKER_ID(PoolId),
     restart => transient
   }).
 
