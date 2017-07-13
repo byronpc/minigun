@@ -6,8 +6,7 @@
   pid/1,
   worker_count/1,
   add_worker/1,
-  cleanup_workers/1,
-  test/0
+  cleanup_workers/1
 ]).
 
 %%====================================================================
@@ -58,10 +57,8 @@ cleanup_workers(PoolId, [{PidName, Pid, _, _}|Rest]) ->
       skip;
     _ ->
       case revolver_utils:message_queue_len(Pid) of
-        0 ->
-          decommision_worker(PoolId, PidName, Pid);
-        _ ->
-          skip
+        0 -> decommision_worker(PoolId, PidName, Pid);
+        _ -> skip
       end
   end,
   cleanup_workers(PoolId, Rest).
@@ -72,8 +69,11 @@ cleanup_workers(PoolId, [{PidName, Pid, _, _}|Rest]) ->
 
 %% Remove worker from the pool
 decommision_worker(PoolId, PidName, Pid) ->
-  % MAKE SURE NOT ACCEPTING NEW MESSAGES REMOVE FROM REVOLVER
+  % Remove pid from pool
+  ok = revolver:pid_down(PoolId, Pid),
+  % Stop the pid
   ok = gen_server:stop(Pid),
+  % Delete remove child from supervisor
   ok = supervisor:delete_child(?SUPERVISOR(PoolId), PidName).
 
 %% Dynamically added workers to the pool will have transient childspec
@@ -83,9 +83,3 @@ get_transient_childspec(PoolId) ->
     id => ?GENERATE_WORKER_ID(PoolId),
     restart => transient
   }).
-
-test() ->
-  minigun_pong:start(),
-  P = minigun:add_worker(pong),
-  spawn(fun() -> gen_server:call(P, ping, 10000) end).
-

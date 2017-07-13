@@ -3,6 +3,6 @@
        {ref,"17b0ea5b7d9c93af3a52b5152c6bee14302b3885"}},
   1},
  {<<"revolver">>,
-  {git,"git://github.com/odo/revolver.git",
-       {ref,"36dc36a079dcb5cade18822273fb99a3e1d8c9f5"}},
+  {git,"git://github.com/byronpc/revolver.git",
+       {ref,"d2c278b2f18c2ced121abcf37b9023f67616bea1"}},
   0}].
