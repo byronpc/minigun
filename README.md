@@ -33,6 +33,7 @@ MinigunOpts = #{
   pool_id       => pong,        % pool id
   pool_size     => 2,           % initial size of the pool
   pool_limit    => 4,           % maximum size of the pool
+  janitor_ttl   => 30000,       % janitor interval for idle worker cleanup
   child_spec    => ChildSpec,   % worker child spec
   revolver_opts => RevolverOpts % revolver options
 }
@@ -66,6 +67,7 @@ opts = %{
   pool_id:    pong,
   pool_size:  2,
   pool_limit: 4,
+  janitor_ttl: 30000,
   child_spec: worker(:minigun_pong, []),
   revolver_opts: %{
     min_alive_ratio: 1.00,
