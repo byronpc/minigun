@@ -78,8 +78,19 @@ decommision_worker(PoolId, PidName, Pid) ->
 
 %% Dynamically added workers to the pool will have transient childspec
 get_transient_childspec(PoolId) ->
-  {ok, Template} = application:get_env(PoolId, child_spec),
-  maps:merge(Template, #{
-    id => ?GENERATE_WORKER_ID(PoolId),
-    restart => transient
-  }).
+  case application:get_env(PoolId, child_spec) of
+    {ok, {_Id, {M, F, A}, _Restart, Shutdown, Type, Modules}} ->
+      #{
+        id => ?GENERATE_WORKER_ID(PoolId),
+        modules => Modules,
+        restart => transient,
+        shutdown => Shutdown,
+        start => {M,F,A},
+        type => Type
+      };
+    {ok, Template} ->
+      maps:merge(Template, #{
+        id => ?GENERATE_WORKER_ID(PoolId),
+        restart => transient
+      })
+  end.
